@@ -1,0 +1,60 @@
+# deployment for Flask API
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-api
+  labels:
+    app: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      name: flask-api-pod
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: flask-api-container
+          image: flask-api
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5000
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-root-password
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-root-user
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-db
+            - name: POSTGRES_SERVICE
+              value: postgres-service
+
+---
+#service for Flask API
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-api-server
+  labels:
+    app: backend
+spec:
+  type: NodePort
+  selector:
+    app: backend
+  ports:
+    - port: 5000
+      targetPort: 5000
