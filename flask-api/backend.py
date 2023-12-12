@@ -1,15 +1,16 @@
 from flask import Flask
+from flask_cors import CORS
 import os
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+CORS(app)
 db_config = {
     "POSTGRES_USER": os.environ["POSTGRES_USER"],
     "POSTGRES_PASSWORD": os.environ["POSTGRES_PASSWORD"],
     "POSTGRES_SERVICE": os.environ["POSTGRES_SERVICE"],
     "POSTGRES_DB": os.environ["POSTGRES_DB"],
 }
-print(db_config)
 app.config[
     "SQLALCHEMY_DATABASE_URI"
 ] = f'postgresql://{db_config["POSTGRES_USER"]}:{db_config["POSTGRES_PASSWORD"]}@{db_config["POSTGRES_SERVICE"]}:5432/{db_config["POSTGRES_DB"]}'
@@ -26,7 +27,7 @@ class People(db.Model):
         return f"<People {self.name}>"
 
 
-@app.route("/", methods=["GET"])
+@app.route("/api", methods=["GET"])
 def get_people():
     people = People.query.all()
     return {"people": [person.name for person in people]}

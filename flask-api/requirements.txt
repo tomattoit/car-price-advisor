@@ -4,3 +4,4 @@ sqlalchemy==2.0.21
 Werkzeug==2.3.7
 gunicorn
 psycopg2-binary
+flask-cors==4.0.0

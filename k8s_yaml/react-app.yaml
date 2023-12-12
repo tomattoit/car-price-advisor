@@ -1,0 +1,42 @@
+# react app deployment
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-app
+  labels:
+    app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      name: react-app-pod
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: react-app-container
+          image: react-app
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+
+---
+# react app service
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: react-app-service
+  labels:
+    app: frontend
+spec:
+  type: LoadBalancer
+  selector:
+    app: frontend
+  ports:
+    - port: 8080
+      targetPort: 8080
