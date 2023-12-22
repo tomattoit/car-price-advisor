@@ -21,7 +21,7 @@ EOF
 sudo sysctl --system
 
 sudo apt-get update
-sudo apt-get install ca-certificates curl gnupg
+sudo apt-get install -y ca-certificates curl gnupg
 
 sudo install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
@@ -33,7 +33,7 @@ echo \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
   
 sudo apt-get update
-sudo apt-get install docker-ce
+sudo apt-get install -y docker-ce 
 
 wget https://go.dev/dl/go1.21.5.linux-amd64.tar.gz
 rm -rf /usr/local/go && tar -C /usr/local -xzf go1.21.5.linux-amd64.tar.gz
