@@ -1,64 +1,51 @@
 pipeline {
-  agent {
-    kubernetes {
-      yaml '''
-        apiVersion: v1
-        kind: Pod
-        spec:
-          containers:
-          - name: maven
-            image: maven:alpine
-            command:
-            - cat
-            tty: true
-          - name: docker
-            image: docker:latest
-            command:
-            - cat
-            tty: true
-            volumeMounts:
-             - mountPath: /var/run/docker.sock
-               name: docker-sock
-          volumes:
-          - name: docker-sock
-            hostPath:
-              path: /var/run/docker.sock    
-        '''
-    }
+
+  environment {
+    dockerimagename = "tomattoid/postgres"
+    dockerImage = ""
   }
+
+  agent any
+
   stages {
-    stage('Clone') {
+
+    stage('Checkout Source') {
       steps {
-          git branch: 'main', changelog: false, poll: false, url: 'https://github.com/tomattoit/car-price-advisor.git'
+        git branch: 'main', url: 'https://github.com/tomattoit/car-price-advisor.git'
       }
-    }  
-    stage('Build-Docker-Image') {
-      steps {
-        container('docker') {
-          sh 'docker build -t tomattoid/python-job:latest .'
+    }
+
+    stage('Build image') {
+      steps{
+        sh 'cd python-job/'
+        script {
+          dockerImage = docker.build dockerimagename
         }
       }
     }
-    stage('Login-Into-Docker') {
-      steps {
-        container('docker') {
-          sh 'docker login -u tomattoid -p a21062004'
+
+    stage('Pushing Image') {
+      environment {
+               registryCredential = 'dockerhub-credentials'
+           }
+      steps{
+        script {
+          docker.withRegistry( 'https://registry.hub.docker.com', registryCredential ) {
+            dockerImage.push("latest")
+          }
+        }
       }
     }
-    }
-     stage('Push-Images-Docker-to-DockerHub') {
+
+    stage('Deploying python job container to Kubernetes') {
       steps {
-        container('docker') {
-          sh 'docker push tomattoid/python-job:latest'
+        sh 'cd k8s_yaml'
+        script {
+          kubernetesDeploy(configs: "python-app-depl.yaml")
+        }
       }
     }
-     }
+
   }
-    post {
-      always {
-        container('docker') {
-          sh 'docker logout'
-      }
-      }
-    }
+
 }
