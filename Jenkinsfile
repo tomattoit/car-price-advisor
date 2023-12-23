@@ -88,10 +88,8 @@ pipeline {
     stage('Pushing Image') {
       steps{
           container('docker'){
-            sh 'docker login -u tomattoid -p a21062004'
             sh 'docker tag postgres tomattoid/postgres:tagname'
             sh 'docker push tomattoid/postgres:tagname'
-            sh 'docker logout'
           }
       }
     }
