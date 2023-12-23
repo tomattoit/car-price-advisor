@@ -5,12 +5,7 @@ pipeline {
     dockerImage = ""
   }
 
-  agent {
-    kubernetes {
-        defaultContainer 'jnlp'
-        yamlFile 'agentpod.yaml'
-      }
-  }
+  agent any
 
   stages {
 
@@ -19,13 +14,6 @@ pipeline {
         git branch: 'main', url: 'https://github.com/tomattoit/car-price-advisor.git'
       }
     }
-    
-    stage('Build') {
-        steps {
-            container('maven') {
-                sh 'mvn package'
-            }
-        }
         
     stage('Build image') {
       steps{
