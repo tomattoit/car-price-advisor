@@ -11,7 +11,7 @@ pipeline {
 
     stage('Checkout Source') {
       steps {
-        git 'https://github.com/tomattoit/car-price-advisor.git'
+        git branch: 'main', url: 'https://github.com/tomattoit/car-price-advisor.git'
       }
     }
 
