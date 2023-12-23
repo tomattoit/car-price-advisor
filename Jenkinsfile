@@ -5,7 +5,12 @@ pipeline {
     dockerImage = ""
   }
 
-  agent any
+  agent {
+      kubernetes {
+          defaultContainer 'jnlp'
+          yamlFile 'agentpod.yaml'
+      }
+  }
 
   stages {
 
