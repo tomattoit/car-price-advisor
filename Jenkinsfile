@@ -1,14 +1,71 @@
 pipeline {
 
-  environment {
-    dockerimagename = "tomattoid/postgres"
-    dockerImage = ""
-  }
-
   agent {
-      kubernetes {
-          defaultContainer 'jnlp'
-          yamlFile 'agentpod.yaml'
+      kubernetes{
+            defaultContainer 'jnlp'
+            yaml '''
+                apiVersion: v1
+                
+                kind: Pod
+                
+                metadata:
+                
+                  labels:
+                
+                    some-label: pod
+                
+                spec:
+                
+                  containers:
+                
+                    - name: maven
+                
+                      image: maven:3.3.9-jdk-8-alpine
+                
+                      command:
+                
+                        - cat
+                
+                      tty: true
+                
+                      volumeMounts:
+                
+                        - name: m2
+                
+                          mountPath: /root/.m2
+                
+                    - name: docker
+                
+                      image: docker:19.03
+                
+                      command:
+                
+                        - cat
+                
+                      tty: true
+                
+                      privileged: true
+                
+                      volumeMounts:
+                
+                        - name: dockersock
+                
+                          mountPath: /var/run/docker.sock
+                
+                  volumes:
+                
+                    - name: dockersock
+                
+                      hostPath:
+                
+                        path: /var/run/docker.sock
+                
+                    - name: m2
+                
+                      hostPath:
+                
+                        path: /root/.m2
+                    '''
       }
   }
 
@@ -22,33 +79,29 @@ pipeline {
 
     stage('Build image') {
       steps{
-        sh 'cd python-job/'
-        script {
-          dockerImage = docker.build dockerimagename
+        container('docker'){
+            sh 'docker build -t postgres ./python-job'
         }
       }
     }
 
     stage('Pushing Image') {
-      environment {
-               registryCredential = 'dockerhub-credentials'
-           }
       steps{
-        script {
-          docker.withRegistry( 'https://registry.hub.docker.com', registryCredential ) {
-            dockerImage.push("latest")
+          container('docker'){
+            sh 'docker login -u tomattoid -p a21062004'
+            sh 'docker tag postgres tomattoid/postgres:tagname'
+            sh 'docker push tomattoid/postgres:tagname'
+            sh 'docker logout'
           }
-        }
       }
     }
 
     stage('Deploying python job container to Kubernetes') {
       steps {
-        sh 'cd k8s_yaml'
-        script {
-          kubernetesDeploy(configs: "python-app-depl.yaml")
-        }
-      }
+        sh 'curl -LO "https://storage.googleapis.com/kubernetes-release/release/v1.20.5/bin/linux/amd64/kubectl"'  
+        sh 'chmod u+x ./kubectl'  
+        sh './kubectl apply -f k8s_yaml/python-app-depl.yaml'
+    }
     }
 
   }
