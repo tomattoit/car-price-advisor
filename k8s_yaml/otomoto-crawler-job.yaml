@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: otomoto-crawler-job
+  labels:
+    app: otomoto-crawler
+spec:
+  template:
+    metadata:
+      name: otomoto-crawler-pod
+      labels:
+        app: otomoto-crawler
+    spec:
+      containers:
+        - name: otomoto-crawler-container
+          image: otomoto-crawler
+          imagePullPolicy: Never
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-root-password
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-root-user
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-db
+            - name: POSTGRES_SERVICE
+              value: postgres-service
+      restartPolicy: Never
