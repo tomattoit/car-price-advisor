@@ -1,5 +1,4 @@
 pipeline {
-
   agent {
       kubernetes{
             defaultContainer 'jnlp'
@@ -17,23 +16,7 @@ pipeline {
                 spec:
                 
                   containers:
-                
-                    - name: maven
-                
-                      image: maven:3.3.9-jdk-8-alpine
-                
-                      command:
-                
-                        - cat
-                
-                      tty: true
-                
-                      volumeMounts:
-                
-                        - name: m2
-                
-                          mountPath: /root/.m2
-                
+               
                     - name: docker
                 
                       image: docker:19.03
@@ -80,25 +63,23 @@ pipeline {
     stage('Build image') {
       steps{
         container('docker'){
-            sh 'docker build -t postgres ./python-job'
+            script{
+                def dockerImage = docker.build('tomattoid/postgres', './python-crawler')
+                docker.withRegistry( 'https://registry.hub.docker.com', 'dockerhub-credentials' ) {
+                    dockerImage.push("tagname")
+                }
+            }
         }
       }
     }
-
-    stage('Pushing Image') {
-      steps{
-          container('docker'){
-            sh 'docker tag postgres tomattoid/postgres:tagname'
-            sh 'docker push tomattoid/postgres:tagname'
-          }
-      }
-    }
+    
+    
 
     stage('Deploying python job container to Kubernetes') {
       steps {
-        sh 'curl -LO "https://storage.googleapis.com/kubernetes-release/release/v1.20.5/bin/linux/amd64/kubectl"'  
-        sh 'chmod u+x ./kubectl'  
-        sh './kubectl apply -f k8s_yaml/python-app-depl.yaml'
+        script{
+            kubernetesDeploy(configs: "python-app-depl.yaml")
+        }
     }
     }
 
