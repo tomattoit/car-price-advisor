@@ -78,7 +78,7 @@ pipeline {
     stage('Deploying python job container to Kubernetes') {
       steps {
         script{
-            kubernetesDeploy(configs: "python-app-depl.yaml")
+            kubernetesDeploy (configs: 'k8s_yaml/python-app-depl.yaml', kubeconfigId: 'kubeconfig')
         }
     }
     }
