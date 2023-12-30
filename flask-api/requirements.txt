@@ -1,7 +1,7 @@
 Flask==2.2.2
-flask_sqlalchemy==3.0.3
-sqlalchemy==2.0.21
+Flask_Cors==4.0.0
+pandas==2.1.4
+watchdog==3.0.0
 Werkzeug==2.3.7
 gunicorn
-psycopg2-binary
-flask-cors==4.0.0
+catboost==1.2.2

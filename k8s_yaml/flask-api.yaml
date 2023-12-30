@@ -23,24 +23,24 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 5000
-          env:
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: postgres-root-password
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: postgres-root-user
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: postgres-db
-            - name: POSTGRES_SERVICE
-              value: postgres-service
+          # env:
+          #   - name: POSTGRES_PASSWORD
+          #     valueFrom:
+          #       secretKeyRef:
+          #         name: postgres-secret
+          #         key: postgres-root-password
+          #   - name: POSTGRES_USER
+          #     valueFrom:
+          #       secretKeyRef:
+          #         name: postgres-secret
+          #         key: postgres-root-user
+          #   - name: POSTGRES_DB
+          #     valueFrom:
+          #       secretKeyRef:
+          #         name: postgres-secret
+          #         key: postgres-db
+          #   - name: POSTGRES_SERVICE
+          #     value: postgres-service
 
 ---
 #service for Flask API

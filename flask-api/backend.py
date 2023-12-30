@@ -1,37 +1,99 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 from flask_cors import CORS
+
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+
 import os
-from flask_sqlalchemy import SQLAlchemy
+import pandas as pd
+import pickle
+import time
 
 app = Flask(__name__)
 CORS(app)
-db_config = {
-    "POSTGRES_USER": os.environ["POSTGRES_USER"],
-    "POSTGRES_PASSWORD": os.environ["POSTGRES_PASSWORD"],
-    "POSTGRES_SERVICE": os.environ["POSTGRES_SERVICE"],
-    "POSTGRES_DB": os.environ["POSTGRES_DB"],
-}
-app.config[
-    "SQLALCHEMY_DATABASE_URI"
-] = f'postgresql://{db_config["POSTGRES_USER"]}:{db_config["POSTGRES_PASSWORD"]}@{db_config["POSTGRES_SERVICE"]}:5432/{db_config["POSTGRES_DB"]}'
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-db = SQLAlchemy(app)
+
+FEATURES = [
+    "aso",
+    "brand",
+    "capacity",
+    "color",
+    "fuel_type",
+    "horse_power",
+    "is_used",
+    "mileage",
+    "no_accidents",
+    "number_of_doors",
+    "origin_country",
+    "transmission",
+    "year",
+]
+MODEL_PICKLE_PATH = "./catboost.pkl"
+
+model = None
+last_event_time = None
 
 
-class People(db.Model):
-    __tablename__ = "people"
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), unique=True, nullable=False)
-
-    def __repr__(self):
-        return f"<People {self.name}>"
-
-
-@app.route("/api", methods=["GET"])
-def get_people():
-    people = People.query.all()
-    return {"people": [person.name for person in people]}
+def init_model():
+    global model
+    if not os.path.exists(MODEL_PICKLE_PATH):
+        model = None
+        return
+    with open(MODEL_PICKLE_PATH, "rb") as f:
+        model = pickle.load(f)
 
 
-if __name__ == "__main__":
-    app.run(debug=True)
+def init_observer():
+    observer = Observer()
+    event_handler = ModelChangedHandler()
+    observer.schedule(
+        event_handler, path=os.path.dirname(MODEL_PICKLE_PATH), recursive=False
+    )
+    observer.start()
+    return observer
+
+
+class ModelChangedHandler(FileSystemEventHandler):
+    def _handle_event(self, event):
+        global last_event_time
+        current_time = time.time()
+        if event.src_path == MODEL_PICKLE_PATH and (
+            last_event_time is None or current_time - last_event_time > 1
+        ):
+            last_event_time = current_time
+            print("Model changed, reloading...")
+            init_model()
+
+    def on_modified(self, event):
+        self._handle_event(event)
+
+    def on_created(self, event):
+        self._handle_event(event)
+
+    def on_deleted(self, event):
+        self._handle_event(event)
+
+
+@app.route("/api/predict", methods=["POST"])
+def predict_endpoint():
+    if not model:
+        return {"error": "Model not initialized"}, 500
+    data = pd.json_normalize(request.json)[FEATURES]
+    prediction = model.predict(data)[0]
+    return jsonify(prediction)
+
+
+def start_program(is_local_server):
+    observer = None
+    try:
+        init_model()
+        observer = init_observer()
+        if is_local_server:
+            app.run(debug=True)
+    finally:
+        if observer:
+            observer.stop()
+        if observer:
+            observer.join()
+
+
+start_program(__name__ == "__main__")
