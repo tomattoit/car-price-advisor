@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- displays site properly based on user's device -->
+
+    <link rel="icon" type="image/svg+xml" href="./images/favicon.svg" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <title>Car Price Advisor | PIS Project</title>
+  </head>
+  <body>
+    <div class="component">
+      <div class="component__img">
+        <img src="./images/car-present.svg" alt="Car as a present" />
+      </div>
+      <div class="component__details">
+        <h1 class="component__details-title">Doradca cen samochodów</h1>
+
+        <p class="component__details-description">
+          Nasz projekt wykorzystuje zaawansowany model uczenia maszynowego, aby dokładnie przewidzieć wartość
+          Twojego pojazdu na podstawie podanych danych. Sprawdź teraz i odkryj, ile jest wart Twój samochód!
+        </p>
+
+        <div class="component-details__form-wrapper form-wrapper">
+          <div class="form-wrapper__brand-form form-input-group">
+            <label for="brand" class="form-input-group__label form-label"> Marka </label>
+            <input
+              type="text"
+              name="brand"
+              id="brand"
+              placeholder="Marka pojazdu np. Audi"
+              class="form-input-group__input form-input"
+            />
+          </div>
+
+          <div class="form-wrapper__year-form form-input-group">
+            <label for="year" class="form-input-group__label form-label"> Rok produkcji </label>
+            <input
+              type="number"
+              name="year"
+              id="year"
+              min="1900"
+              max="2023"
+              placeholder="Rok produkcji pojazdu"
+              class="form-input-group__input form-input"
+            />
+          </div>
+
+          <div class="form-wrapper__mileage-form form-input-group">
+            <label for="mileage" class="form-input-group__label form-label"> Przebieg </label>
+            <input
+              type="number"
+              name="mileage"
+              id="mileage"
+              min="0"
+              placeholder="Przebieg pojazdu w km"
+              class="form-input-group__input form-input"
+            />
+          </div>
+
+          <div class="form-wrapper__fuel-type-form form-input-group">
+            <label class="form-input-group__label form-label"> Rodzaj paliwa: </label>
+
+            <select class="form-input-group__select form-select" name="fuel-type" id="fuel-type">
+              <option value="Hybryda">Hybryda</option>
+              <option value="Electryczny">Elektryczny</option>
+              <option value="Diesel">Diesel</option>
+              <option value="Benzyna">Benzyna</option>
+              <option value="Benzyna+LPG">Benzyna+LPG</option>
+            </select>
+          </div>
+
+          <div class="form-wrapper__capacity-form form-input-group">
+            <label for="capacity" class="form-input-group__label form-label"> Pojemność skokowa </label>
+            <input
+              type="number"
+              name="capacity"
+              id="capacity"
+              min="0"
+              placeholder="Pojemność skokowa pojazdu w cm3"
+              class="form-input-group__input form-input"
+            />
+          </div>
+
+          <div class="form-wrapper__horse-power-form form-input-group">
+            <label for="horse-power" class="form-input-group__label form-label"> Moc </label>
+            <input
+              type="number"
+              name="horse-power"
+              id="horse-power"
+              min="0"
+              placeholder="Moc pojazdu w km"
+              class="form-input-group__input form-input"
+            />
+          </div>
+
+          <div class="form-wrapper__transmission-form form-input-group">
+            <label class="form-input-group__label form-label"> Skrzynia biegów: </label>
+
+            <select class="form-input-group__select form-select" name="transmission" id="transmission">
+              <option value="Automatyczna">Automatyczna</option>
+              <option value="Manualna">Manualna</option>
+            </select>
+          </div>
+
+          <div class="form-wrapper__doors-number-form form-input-group">
+            <label for="doors-number" class="form-input-group__label form-label"> Liczba drzwi </label>
+            <input
+              type="number"
+              name="doors-number"
+              id="doors-number"
+              min="1"
+              max="10"
+              placeholder="Liczba drzwi pojazdu"
+              class="form-input-group__input form-input"
+            />
+          </div>
+
+          <div class="form-wrapper__color-form form-input-group">
+            <label for="color" class="form-input-group__label form-label"> Kolor </label>
+            <input
+              type="text"
+              name="color"
+              id="color"
+              placeholder="Kolor pojazdu np. czarny"
+              class="form-input-group__input form-input"
+            />
+          </div>
+
+          <div class="form-wrapper__origin-country-form form-input-group">
+            <label for="origin-country" class="form-input-group__label form-label"> Kraj pochodzenia </label>
+            <input
+              type="text"
+              name="origin-country"
+              id="origin-country"
+              placeholder="Kraj pochodzenia pojazdu np. Polska"
+              class="form-input-group__input form-input"
+            />
+          </div>
+
+          <div class="form-wrapper__aso-form input-radio-wrapper">
+            <label for="aso" class="input-radio-wrapper__label form-label">
+              Czy pojazd jest serwisowany w ASO?
+            </label>
+
+            <div class="input-radio-wrapper__flex choices-flex">
+              <div class="choices-flex__radio-group radio-group">
+                <label class="radio-group__label radio-choice-label">
+                  <input class="radio-choice-label__input" type="radio" name="aso" id="aso" />
+                  Tak
+                  <span class="radio-choice-label__checkmark"></span>
+                </label>
+              </div>
+
+              <div class="choices-flex__radio-group radio-group">
+                <label class="radio-group__label radio-choice-label">
+                  <input class="radio-choice-label__input" type="radio" name="aso" id="aso" />
+                  Nie
+                  <span class="radio-choice-label__checkmark"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-wrapper__no-accidents-form input-radio-wrapper">
+            <label for="no-accidents" class="input-radio-wrapper__label form-label"> Bezwypadkowy? </label>
+
+            <div class="input-radio-wrapper__flex choices-flex">
+              <div class="choices-flex__radio-group radio-group">
+                <label class="radio-group__label radio-choice-label">
+                  <input
+                    class="radio-choice-label__input"
+                    type="radio"
+                    name="no-accidents"
+                    id="no-accidents"
+                  />
+                  Tak
+                  <span class="radio-choice-label__checkmark"></span>
+                </label>
+              </div>
+
+              <div class="choices-flex__radio-group radio-group">
+                <label class="radio-group__label radio-choice-label">
+                  <input
+                    class="radio-choice-label__input"
+                    type="radio"
+                    name="no-accidents"
+                    id="no-accidents"
+                  />
+                  Nie
+                  <span class="radio-choice-label__checkmark"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-wrapper__no-accidents-form input-radio-wrapper">
+            <label for="is-used" class="input-radio-wrapper__label form-label"> Używany? </label>
+
+            <div class="input-radio-wrapper__flex choices-flex">
+              <div class="choices-flex__radio-group radio-group">
+                <label class="radio-group__label radio-choice-label">
+                  <input class="radio-choice-label__input" type="radio" name="is-used" id="is-used" />
+                  Tak
+                  <span class="radio-choice-label__checkmark"></span>
+                </label>
+              </div>
+
+              <div class="choices-flex__radio-group radio-group">
+                <label class="radio-group__label radio-choice-label">
+                  <input class="radio-choice-label__input" type="radio" name="is-used" id="is-used" />
+                  Nie
+                  <span class="radio-choice-label__checkmark"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="component__button-prediction">Sprawdź cenę</button>
+      </div>
+    </div>
+  </body>
+</html>
