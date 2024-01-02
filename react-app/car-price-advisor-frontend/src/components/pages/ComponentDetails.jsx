@@ -1,20 +1,29 @@
 import { useForm, FormProvider } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
 import InputForm from "../inputForm/InputForm";
 import SelectForm from "../selectForm/SelectForm";
 import RadioForm from "../radioForm/RadioForm";
+import Spinner from "../spinner/Spinner";
 
-const ComponentDetails = () => {
+import usePredictAPI from "../../services/usePredictAPI";
+
+const ComponentDetailsPage = () => {
   const methods = useForm();
+  const { loading, predict } = usePredictAPI();
+  const navigate = useNavigate();
 
   const onSubmit = methods.handleSubmit((data) => {
-    console.log(data);
+    predict(data).then((res) => {
+      navigate("/result", { state: { prediction: res } });
+    });
   });
 
   const description =
     "Nasz projekt wykorzystuje zaawansowany model uczenia maszynowego, \
     aby dokładnie przewidzieć wartość Twojego pojazdu na podstawie podanych danych. \
     Sprawdź teraz i odkryj, ile jest wart Twój samochód!";
+  const buttonContent = loading ? <Spinner /> : "Sprawdź teraz";
 
   return (
     <div className="component__details">
@@ -58,7 +67,7 @@ const ComponentDetails = () => {
           <SelectForm label="Skrzynia biegów" name="transmission" options={["Automatyczna", "Manualna"]} />
           <InputForm
             label="Liczba drzwi"
-            name="doors_number"
+            name="number_of_doors"
             placeholder="Liczba dzrwi pojazdu"
             isNumeric={true}
             min={0}
@@ -73,8 +82,12 @@ const ComponentDetails = () => {
           <RadioForm label="Czy pojazd jest serwisowany w ASO?" name="aso" options={["Tak", "Nie"]} />
           <RadioForm label="Bezwypadkowy?" name="no_accidents" options={["Tak", "Nie"]} />
           <RadioForm label="Używany?" name="is_used" options={["Tak", "Nie"]} />
-          <button onClick={onSubmit} className="component__button-prediction prediction-btn">
-            Sprawdź cenę
+          <button
+            onClick={onSubmit}
+            disabled={loading}
+            className="component__button-prediction prediction-btn"
+          >
+            {buttonContent}
           </button>
         </form>
       </FormProvider>
@@ -82,4 +95,4 @@ const ComponentDetails = () => {
   );
 };
 
-export default ComponentDetails;
+export default ComponentDetailsPage;

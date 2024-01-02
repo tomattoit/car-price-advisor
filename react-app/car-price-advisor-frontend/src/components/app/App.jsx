@@ -1,16 +1,23 @@
-import { useState } from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import ComponentDetails from "../componentDetails/ComponentDetails";
+import { Root, ComponentDetailsPage, ResultPage, NotFoundPage } from "../pages";
 
-import header_image from "../../recources/img/car-present.svg";
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Root />,
+    children: [
+      { index: true, element: <ComponentDetailsPage /> },
+      { path: "/result", element: <ResultPage /> },
+      { path: "*", element: <NotFoundPage /> },
+    ],
+  },
+]);
 
 function App() {
   return (
-    <div className="component">
-      <div className="component__img">
-        <img src={header_image} alt="Car as a present" />
-      </div>
-      <ComponentDetails />
+    <div className="app">
+      <RouterProvider router={router} />
     </div>
   );
 }

@@ -65,7 +65,7 @@ body {
 .component .component__details .component__details-title {
   text-align: center;
   font-weight: var(--fw-extra-bold);
-  font-size: 24px;
+  font-size: 1.5rem;
 }
 
 .component .component__details .component__details-description {
@@ -84,7 +84,6 @@ body {
 
 .form-label {
   font-weight: var(--fw-semi-bold);
-  font-size: 1rem;
   color: var(--clr-neutral-dark-blue);
   display: block;
   line-height: 1.25rem;
@@ -199,6 +198,11 @@ body {
   color: var(--clr-neutral-very-pale-blue);
   font-weight: var(--fw-bold);
   box-shadow: 0 2.5rem 30px hsla(225, 100%, 94%, 45%);
+  font-size: 0.85rem;
+}
+
+.component .component__details .component__button-prediction:disabled {
+  opacity: 0.6;
 }
 
 @media (min-width: 375px) {
@@ -213,4 +217,63 @@ body {
   color: red;
   font-size: 0.75rem;
   display: block;
+}
+
+.component__button-prediction:has(.spinner) {
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+}
+
+.component__button-prediction svg.spinner {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.result__title {
+  text-align: center;
+  font-weight: var(--fw-extra-bold);
+  font-size: 1.5rem;
+}
+
+.result__details {
+  text-align: center;
+  line-height: 1.5;
+}
+
+.result__details .details__value {
+  font-weight: var(--fw-extra-bold);
+  font-size: 1.2rem;
+  color: var(--clr-primary-bright-blue);
+}
+
+.return-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: none;
+}
+
+.result__return-button {
+  background-color: var(--clr-primary-bright-blue);
+  color: var(--clr-neutral-very-pale-blue);
+  font-weight: var(--fw-bold);
+  box-shadow: 0 2.5rem 30px hsla(225, 100%, 94%, 45%);
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.return-button__link {
+  color: var(--clr-white);
+  font-weight: var(--fw-semi-bold);
+  font-size: 1rem;
+  text-decoration: none;
 }
