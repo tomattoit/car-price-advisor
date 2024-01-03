@@ -3,6 +3,7 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 import pandas as pd
 import pickle
+import os
 
 df = pd.read_csv("output.csv")
 df["aso"].fillna(False, inplace=True)
@@ -48,5 +49,6 @@ y_pred = model.predict(X_test)
 print(mean_absolute_error(y_test, y_pred))
 
 # save as pickle
-with open("catboost.pkl", "wb") as f:
+with open("tmp.pkl", "wb") as f:
     pickle.dump(model, f)
+os.replace("tmp.pkl", "catboost.pkl")
