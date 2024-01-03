@@ -30,7 +30,7 @@ columns = [
     "is_used",
 ]
 
-DIRECTORY = "/app"
+DIRECTORY = "/mnt/data"
 MODEL_FILE_NAME = "catboost.pkl"
 
 
@@ -93,5 +93,6 @@ class RetrainModel:
 
 
 if __name__ == "__main__":
+    print(os.path.join(DIRECTORY, "tmp.pkl"))
     retrain = RetrainModel()
     retrain.retrain_model()

@@ -27,7 +27,7 @@ FEATURES = [
     "transmission",
     "year",
 ]
-MODEL_PICKLE_PATH = "./catboost.pkl"
+MODEL_PICKLE_PATH = "/mnt/data/catboost.pkl"
 
 model = None
 last_event_time = None
@@ -82,7 +82,7 @@ def predict_endpoint():
     return jsonify(prediction)
 
 
-def start_program(is_local_server):
+def start_program(is_local_server):	
     observer = None
     try:
         init_model()
