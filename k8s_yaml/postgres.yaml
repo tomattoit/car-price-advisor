@@ -30,7 +30,7 @@ spec:
       containers:
         - name: postgres
           image: postgres
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5432
           env:
@@ -55,7 +55,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres
+  name: postgres-service
   labels:
     app: postgres
 spec:
