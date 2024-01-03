@@ -33,10 +33,11 @@ spec:
                   key: postgres-db
             - name: POSTGRES_SERVICE
               value: postgres-service
-      #     volumeMounts:
-      #       - name: model-volume
-      #         mountPath: /mnt/models
-      # volumes:
-      #   - name: model-volume
-      #     emptyDir: {}
+          volumeMounts:
+            - name: model-volume2
+              mountPath: /mnt/models
+      volumes:
+        - name: model-volume2
+          persistentVolumeClaim:
+            claimName: model-pvc
       restartPolicy: Never

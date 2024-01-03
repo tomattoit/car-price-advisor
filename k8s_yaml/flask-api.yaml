@@ -23,11 +23,13 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 5000
-      #     volumeMounts:
-      #       - name: model-volume
-      #         mountPath: /mnt/models
-      # volumes:
-      #   - name: model-volume
+          volumeMounts:
+            - name: model-volume
+              mountPath: /mnt/models
+      volumes:
+        - name: model-volume
+          persistentVolumeClaim:
+            claimName: model-pvc
 
 ---
 #service for Flask API
