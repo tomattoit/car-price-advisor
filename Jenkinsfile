@@ -64,9 +64,15 @@ pipeline {
       steps{
         container('docker'){
             script{
-                def dockerImage = docker.build('tomattoid/postgres', './python-crawler')
+                def crawlerImage = docker.build('tomattoid/otomoto-crawler', './python-crawler')
+                def reactImage = docker.build('tomattoid/react-app', './react-app/car-price-advisor-frontend')
+                def flaskImage = docker.build('tomattoid/flask-api', './flask-api')
+                def retrainjobImage = docker.build('tomattoid/retrain-app', './retrain-job')
                 docker.withRegistry( 'https://registry.hub.docker.com', 'dockerhub-credentials' ) {
-                    dockerImage.push("tagname")
+                    crawlerImage.push("latest")
+                    reactImage.push("latest")
+                    flaskImage.push("latest")
+                    retrainjobImage.push("latest")
                 }
             }
         }
@@ -78,7 +84,23 @@ pipeline {
     stage('Deploying python job container to Kubernetes') {
       steps {
         script{
-            kubernetesDeploy (configs: 'k8s_yaml/python-app-depl.yaml', kubeconfigId: 'kubeconfig')
+                def remote = [:]
+                remote.name = 'name'
+                remote.host = 'host'
+                remote.user = 'user'
+                remote.password = 'password'
+                remote.allowAnyHosts = true
+                
+                sshCommand remote: remote, command: "kubectl delete -f car-price-advisor/k8s_yaml/react-app.yaml"
+                sshCommand remote: remote, command: "kubectl delete -f car-price-advisor/k8s_yaml/flask-api.yaml"
+                sshCommand remote: remote, command: "kubectl delete -f car-price-advisor/k8s_yaml/otomoto-crawler-job.yaml"
+                sshCommand remote: remote, command: "kubectl delete -f car-price-advisor/k8s_yaml/retrain-job.yaml"
+                  
+                sshCommand remote: remote, command: "kubectl apply -f car-price-advisor/k8s_yaml/react-app.yaml"
+                sshCommand remote: remote, command: "kubectl apply -f car-price-advisor/k8s_yaml/flask-api.yaml"
+                sshCommand remote: remote, command: "kubectl apply -f car-price-advisor/k8s_yaml/otomoto-crawler-job.yaml"
+                sshCommand remote: remote, command: "kubectl apply -f car-price-advisor/k8s_yaml/retrain-job.yaml"
+                
         }
     }
     }

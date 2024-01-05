@@ -13,8 +13,8 @@ spec:
     spec:
       containers:
         - name: otomoto-crawler-container
-          image: otomoto-crawler
-          imagePullPolicy: Never
+          image: tomattoid/otomoto-crawler:latest
+          imagePullPolicy: Always
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:
