@@ -60,7 +60,7 @@ pipeline {
       }
     }
 
-    stage('Build image') {
+    stage('Building, testing and pushing images') {
       steps{
         container('docker'){
             script{
@@ -81,7 +81,7 @@ pipeline {
     
     
 
-    stage('Deploying python job container to Kubernetes') {
+    stage('Deploying images to Kubernetes') {
       steps {
         script{
 
