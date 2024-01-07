@@ -86,15 +86,16 @@ pipeline {
         script{
 
                 sshagent(['ssh-credentials']) {
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@ec2-18-198-1-37.eu-central-1.compute.amazonaws.com kubectl delete -f car-price-advisor/k8s_yaml/react-app.yaml'
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@ec2-18-198-1-37.eu-central-1.compute.amazonaws.com kubectl delete -f car-price-advisor/k8s_yaml/flask-api.yaml'
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@ec2-18-198-1-37.eu-central-1.compute.amazonaws.com kubectl delete -f car-price-advisor/k8s_yaml/otomoto-crawler-job.yaml'
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@ec2-18-198-1-37.eu-central-1.compute.amazonaws.com kubectl delete -f car-price-advisor/k8s_yaml/retrain-job.yaml'
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@ec2-35-157-232-139.eu-central-1.compute.amazonaws.com "cd car-price-advisor/; git pull"'
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@ec2-35-157-232-139.eu-central-1.compute.amazonaws.com kubectl delete -f /home/ubuntu/car-price-advisor/k8s_yaml/react-app.yaml'
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@ec2-35-157-232-139.eu-central-1.compute.amazonaws.com kubectl delete -f /home/ubuntu/car-price-advisor/k8s_yaml/flask-api.yaml'
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@ec2-35-157-232-139.eu-central-1.compute.amazonaws.com kubectl delete -f /home/ubuntu/car-price-advisor/k8s_yaml/otomoto-crawler-job.yaml'
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@ec2-35-157-232-139.eu-central-1.compute.amazonaws.com kubectl delete -f /home/ubuntu/car-price-advisor/k8s_yaml/retrain-job.yaml'
                     
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@ec2-18-198-1-37.eu-central-1.compute.amazonaws.com kubectl apply -f car-price-advisor/k8s_yaml/react-app.yaml'
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@ec2-18-198-1-37.eu-central-1.compute.amazonaws.com kubectl apply -f car-price-advisor/k8s_yaml/flask-api.yaml'
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@ec2-18-198-1-37.eu-central-1.compute.amazonaws.com kubectl apply -f car-price-advisor/k8s_yaml/otomoto-crawler-job.yaml'
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@ec2-18-198-1-37.eu-central-1.compute.amazonaws.com kubectl apply -f car-price-advisor/k8s_yaml/retrain-job.yaml'
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@ec2-35-157-232-139.eu-central-1.compute.amazonaws.com kubectl apply -f /home/ubuntu/car-price-advisor/k8s_yaml/react-app.yaml'
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@ec2-35-157-232-139.eu-central-1.compute.amazonaws.com kubectl apply -f /home/ubuntu/car-price-advisor/k8s_yaml/flask-api.yaml'
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@ec2-35-157-232-139.eu-central-1.compute.amazonaws.com kubectl apply -f /home/ubuntu/car-price-advisor/k8s_yaml/otomoto-crawler-job.yaml'
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@ec2-35-157-232-139.eu-central-1.compute.amazonaws.com kubectl apply -f /home/ubuntu/car-price-advisor/k8s_yaml/retrain-job.yaml'
                 }
                 
         }
