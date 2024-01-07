@@ -1,13 +1,11 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+from multiprocessing import Value
+import gunicorn.app.base
 
 import os
 import pandas as pd
 import pickle
-import time
 
 app = Flask(__name__)
 CORS(app)
@@ -27,54 +25,40 @@ FEATURES = [
     "transmission",
     "year",
 ]
-MODEL_PICKLE_PATH = "/mnt/data/catboost.pkl"
+MODEL_DIRECTORY_PATH = "/mnt/data"
 
 model = None
-last_event_time = None
+version = 0
+
+
+def initialize():
+    global shared_version
+    shared_version = Value("i", 0)
+    init_model()
 
 
 def init_model():
     global model
-    if not os.path.exists(MODEL_PICKLE_PATH):
-        model = None
-        return
-    with open(MODEL_PICKLE_PATH, "rb") as f:
-        model = pickle.load(f)
-
-
-def init_observer():
-    observer = Observer()
-    event_handler = ModelChangedHandler()
-    observer.schedule(
-        event_handler, path=os.path.dirname(MODEL_PICKLE_PATH), recursive=False
+    global shared_version
+    global version
+    model_pickle_path = os.path.join(
+        MODEL_DIRECTORY_PATH, f"catboost_{shared_version.value}.pkl"
     )
-    observer.start()
-    return observer
-
-
-class ModelChangedHandler(FileSystemEventHandler):
-    def _handle_event(self, event):
-        global last_event_time
-        current_time = time.time()
-        if event.src_path == MODEL_PICKLE_PATH and (
-            last_event_time is None or current_time - last_event_time > 1
-        ):
-            last_event_time = current_time
-            print("Model changed, reloading...")
-            init_model()
-
-    def on_modified(self, event):
-        self._handle_event(event)
-
-    def on_created(self, event):
-        self._handle_event(event)
-
-    def on_deleted(self, event):
-        self._handle_event(event)
+    app.logger.error(f"Model path: {model_pickle_path}")
+    if not os.path.exists(model_pickle_path):
+        return
+    version = shared_version.value
+    with open(model_pickle_path, "rb") as f:
+        model = pickle.load(f)
+    app.logger.error(f"Model version: {version}")
 
 
 @app.route("/api/predict", methods=["POST"])
 def predict_endpoint():
+    global version
+    global shared_version
+    if version != shared_version.value:
+        init_model()
     if not model:
         return {"error": "Model not initialized"}, 500
     data = pd.json_normalize(request.json)[FEATURES]
@@ -82,18 +66,43 @@ def predict_endpoint():
     return jsonify(prediction)
 
 
-def start_program(is_local_server):	
-    observer = None
-    try:
-        init_model()
-        observer = init_observer()
-        if is_local_server:
-            app.run(debug=True)
-    finally:
-        if observer:
-            observer.stop()
-        if observer:
-            observer.join()
+@app.route("/update/<version_number>", methods=["GET"])
+def update_model(version_number):
+    global shared_version
+    with shared_version.get_lock():
+        shared_version.value = int(version_number)
+    return {"status": "success"}, 200
 
 
-start_program(__name__ == "__main__")
+@app.route("/api/version", methods=["GET"])
+def get_version():
+    global shared_version
+    return {"version": shared_version.value, "pid": os.getpid()}, 200
+
+
+class HttpServer(gunicorn.app.base.BaseApplication):
+    def __init__(self, app, options=None):
+        self.options = options or {}
+        self.application = app
+        super().__init__()
+
+    def load_config(self):
+        for key, value in self.options.items():
+            if key in self.cfg.settings and value is not None:
+                self.cfg.set(key.lower(), value)
+
+    def load(self):
+        return self.application
+
+    def run(self):
+        super().run()
+
+
+if __name__ == "__main__":
+    global message_queue
+    options = {
+        "bind": "%s:%s" % ("0.0.0.0", "5000"),
+        "workers": 4,
+    }
+    initialize()
+    HttpServer(app, options).run()

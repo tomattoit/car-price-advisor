@@ -1,7 +1,9 @@
-import os
 import psycopg2
 import pandas as pd
 import pickle
+import os
+import time
+import requests
 
 from catboost import CatBoostRegressor
 from psycopg2 import sql
@@ -14,20 +16,20 @@ db_config = {
 }
 
 columns = [
-    "brand",
-    "price",
-    "year",
-    "mileage",
-    "capacity",
-    "horse_power",
-    "fuel_type",
-    "transmission",
-    "number_of_doors",
-    "color",
-    "origin_country",
-    "no_accidents",
     "aso",
+    "brand",
+    "capacity",
+    "color",
+    "fuel_type",
+    "horse_power",
     "is_used",
+    "mileage",
+    "no_accidents",
+    "number_of_doors",
+    "origin_country",
+    "transmission",
+    "year",
+    "price",
 ]
 
 DIRECTORY = "/mnt/data"
@@ -77,22 +79,22 @@ class RetrainModel:
         model.fit(X, y)
         return model
 
-    def save_model(self, model):
-        with open(os.path.join(DIRECTORY, "tmp.pkl"), "wb") as f:
+    def save_model(self, model, version):
+        with open(os.path.join(DIRECTORY, f"catboost_{version}.pkl"), "wb") as f:
             pickle.dump(model, f)
-        os.replace(
-            os.path.join(DIRECTORY, "tmp.pkl"),
-            os.path.join(DIRECTORY, MODEL_FILE_NAME),
-        )
 
-    def retrain_model(self):
+    def retrain_model(self, version):
         data = self.get_data()
         df = pd.DataFrame(data, columns=columns)
         model = self.train_model(df)
-        self.save_model(model)
+        self.save_model(model, version=version)
 
 
 if __name__ == "__main__":
-    print(os.path.join(DIRECTORY, "tmp.pkl"))
     retrain = RetrainModel()
-    retrain.retrain_model()
+    version = int(time.time())
+    retrain.retrain_model(version=version)
+
+    # send request to flask-api to update model
+    flask_api_url = os.environ["FLASK_SERVICE"]
+    r = requests.get(f"http://{flask_api_url}:5000/update/{version}")
