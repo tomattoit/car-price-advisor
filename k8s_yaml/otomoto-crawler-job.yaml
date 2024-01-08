@@ -1,36 +1,40 @@
 apiVersion: batch/v1
-kind: Job
+kind: CronJob
 metadata:
-  name: otomoto-crawler-job
+  name: crawler-cronjob
   labels:
-    app: otomoto-crawler
+    app: crawler-app
 spec:
-  template:
-    metadata:
-      name: otomoto-crawler-pod
-      labels:
-        app: otomoto-crawler
+  schedule: "0 0 * * *"
+  successfulJobsHistoryLimit: 0
+  jobTemplate:
     spec:
-      containers:
-        - name: otomoto-crawler-container
-          image: tomattoid/otomoto-crawler:latest
-          imagePullPolicy: Always
-          env:
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: postgres-root-password
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: postgres-root-user
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: postgres-db
-            - name: POSTGRES_SERVICE
-              value: postgres-service
-      restartPolicy: Never
+      template:
+        metadata:
+          name: crawler-pod
+          labels:
+            app: crawler-app
+        spec:
+          containers:
+            - name: crawler-container
+              image: tomattoid/otomoto-crawler:latest
+              imagePullPolicy: Always
+              env:
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgres-secret
+                      key: postgres-root-password
+                - name: POSTGRES_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgres-secret
+                      key: postgres-root-user
+                - name: POSTGRES_DB
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgres-secret
+                      key: postgres-db
+                - name: POSTGRES_SERVICE
+                  value: postgres-service
+          restartPolicy: Never
