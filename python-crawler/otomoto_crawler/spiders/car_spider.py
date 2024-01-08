@@ -22,7 +22,7 @@ class CarSpider(scrapy.Spider):
         # some weird bug: otomoto shows more that 500 pages, but when u try to access
         # them it redirects u to the page 500
         page_number = min(1, int(page_number))
-        for page in range(1, 100):
+        for page in range(1, page_number+1):
             yield scrapy.Request(
                 url=f"{self.base_url}?page={page}",
                 callback=self.parse_page,
