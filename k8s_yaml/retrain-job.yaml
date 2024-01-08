@@ -17,8 +17,8 @@ spec:
         spec:
           containers:
             - name: retrain-container
-              image: retrain-app
-              imagePullPolicy: Never
+              image: tomattoid/retrain-app:latest
+              imagePullPolicy: Always
               env:
                 - name: POSTGRES_PASSWORD
                   valueFrom:
