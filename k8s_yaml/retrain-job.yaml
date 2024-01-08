@@ -1,45 +1,49 @@
 apiVersion: batch/v1
-kind: Job
+kind: CronJob
 metadata:
-  name: retrain-job
+  name: retrain-cronjob
   labels:
     app: retrain-app
 spec:
-  template:
-    metadata:
-      name: retrain-pod
-      labels:
-        app: retrain-app
+  schedule: "10 0 * * *"
+  successfulJobsHistoryLimit: 0
+  jobTemplate:
     spec:
-      containers:
-        - name: retrain-container
-          image: retrain-app
-          imagePullPolicy: Never
-          env:
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: postgres-root-password
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: postgres-root-user
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: postgres-db
-            - name: POSTGRES_SERVICE
-              value: postgres-service
-            - name: FLASK_SERVICE
-              value: flask-api-service
-          volumeMounts:
+      template:
+        metadata:
+          name: retrain-pod
+          labels:
+            app: retrain-app
+        spec:
+          containers:
+            - name: retrain-container
+              image: retrain-app
+              imagePullPolicy: Never
+              env:
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgres-secret
+                      key: postgres-root-password
+                - name: POSTGRES_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgres-secret
+                      key: postgres-root-user
+                - name: POSTGRES_DB
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgres-secret
+                      key: postgres-db
+                - name: POSTGRES_SERVICE
+                  value: postgres-service
+                - name: FLASK_SERVICE
+                  value: flask-api-service
+              volumeMounts:
+                - name: model-volume
+                  mountPath: /mnt/data
+          volumes:
             - name: model-volume
-              mountPath: /mnt/data
-      volumes:
-        - name: model-volume
-          persistentVolumeClaim:
-            claimName: model-pvc
-      restartPolicy: Never
+              persistentVolumeClaim:
+                claimName: model-pvc
+          restartPolicy: Never
